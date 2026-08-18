@@ -1,0 +1,10 @@
+ping google.com
+traceroute google.com
+nslookup google.com
+netstat -tuln
+arp -a
+ip addr
+ip route
+dig google.com
+route -n
+ifconfig

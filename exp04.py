@@ -1,45 +1,37 @@
-import heapq
-import math
-from collections import Counter
+data = input("Enter data bits: ")
+gen = input("Enter generator bits: ")
 
-s = input("Enter a message: ")
-freq = Counter(s)
+n = len(gen) - 1
+temp = list(data + "0" * n)
 
-heap = [[f, [[ch, ""]]] for ch, f in freq.items()]
-heapq.heapify(heap)
+for i in range(len(data)):
+    if temp[i] == '1':
+        for j in range(len(gen)):
+            temp[i + j] = str(int(temp[i + j]) ^ int(gen[j]))
 
-while len(heap) > 1:
-    a = heapq.heappop(heap)
-    b = heapq.heappop(heap)
+crc = ''.join(temp[-n:])
+codeword = data + crc
 
-    for x in a[1:]:
-        for y in x:
-            y[1] = "0" + y[1]
+print("CRC:", crc)
+print("Transmitted data:", codeword)
 
-    for x in b[1:]:
-        for y in x:
-            y[1] = "1" + y[1]
+received = input("Enter received data: ")
+temp = list(received)
 
-    heapq.heappush(heap, [a[0] + b[0]] + a[1:] + b[1:])
+for i in range(len(received) - n):
+    if temp[i] == '1':
+        for j in range(len(gen)):
+            temp[i + j] = str(int(temp[i + j]) ^ int(gen[j]))
 
-codes = {}
-for x in heap[0][1:]:
-    for ch, code in x:
-        codes[ch] = code
+remainder = ''.join(temp[-n:])
 
-h = 0
-l = 0
+if '1' in remainder:
+    print("Error detected!")
+else:
+    print("No error detected.")
 
-for ch, f in freq.items():
-    p = f / len(s)
-    h -= p * math.log2(p)
-    l += p * len(codes[ch])
 
-print("Huffman Codes:")
-for ch, code in codes.items():
-    print(ch, ":", code)
-
-print("Entropy =", h)
-print("Average Length =", l)
-print("Efficiency =", h / l * 100, "%")
-print("Redundancy =", 100 - h / l * 100, "%")
+# Sample Input:
+# Enter data bits: 1101011011
+# Enter generator bits: 10011
+# Enter received data: 11010110111110
