@@ -1,37 +1,33 @@
-data = input("Enter data bits: ")
-gen = input("Enter generator bits: ")
+from scipy.stats import f_oneway, kruskal
 
-n = len(gen) - 1
-temp = list(data + "0" * n)
+group1 = [68, 72, 65, 70, 75, 71, 69, 74]
+group2 = [78, 80, 76, 82, 79, 81, 77, 84]
+group3 = [60, 64, 62, 65, 61, 63, 66, 67]
 
-for i in range(len(data)):
-    if temp[i] == '1':
-        for j in range(len(gen)):
-            temp[i + j] = str(int(temp[i + j]) ^ int(gen[j]))
+alpha = 0.05
 
-crc = ''.join(temp[-n:])
-codeword = data + crc
+f_stat, p_value = f_oneway(group1, group2, group3)
 
-print("CRC:", crc)
-print("Transmitted data:", codeword)
+print("ONE-WAY ANOVA")
+print("F-Statistic :", round(f_stat, 4))
+print("P-Value :", round(p_value, 6))
 
-received = input("Enter received data: ")
-temp = list(received)
-
-for i in range(len(received) - n):
-    if temp[i] == '1':
-        for j in range(len(gen)):
-            temp[i + j] = str(int(temp[i + j]) ^ int(gen[j]))
-
-remainder = ''.join(temp[-n:])
-
-if '1' in remainder:
-    print("Error detected!")
+if p_value < alpha:
+    print("Decision : Reject Null Hypothesis")
+    print("Conclusion : Significant difference exists among the groups.")
 else:
-    print("No error detected.")
+    print("Decision : Fail to Reject Null Hypothesis")
+    print("Conclusion : No significant difference among the groups.")
 
+h_stat, p_value = kruskal(group1, group2, group3)
 
-# Sample Input:
-# Enter data bits: 1101011011
-# Enter generator bits: 10011
-# Enter received data: 11010110111110
+print("\nKRUSKAL-WALLIS TEST")
+print("H-Statistic :", round(h_stat, 4))
+print("P-Value :", round(p_value, 6))
+
+if p_value < alpha:
+    print("Decision : Reject Null Hypothesis")
+    print("Conclusion : Significant difference exists among the groups.")
+else:
+    print("Decision : Fail to Reject Null Hypothesis")
+    print("Conclusion : No significant difference among the groups.")
